@@ -13,23 +13,39 @@ make build
 
 ## Usage
 
-### Run manually against all files
+### Run manually
 
-From any project directory that contains a `.pre-commit-config.yaml`:
+Create a wrapper script (e.g. in `~/vcs/md-config/bin/pre-commit`):
 
 ```bash
+#!/bin/bash
+# Run pre-commit in Docker in the current directory.
+# Requires a .pre-commit-config.yaml in the current directory.
+
 docker run --rm \
   -v "$(pwd):/src" \
   -v pre-commit-cache:/root/.cache/pre-commit \
   -w /src \
-  pre-commit run --all-files
+  pre-commit "$@"
 ```
 
-Or using the Makefile (run from the project directory or copy the Makefile
-there):
+Make it executable and symlink it into your PATH:
 
 ```bash
-make -f /path/to/this/Makefile run
+chmod +x ~/vcs/md-config/bin/pre-commit
+ln -sf ~/vcs/md-config/bin/pre-commit ~/bin/pre-commit
+```
+
+Then from any project directory that contains a `.pre-commit-config.yaml`:
+
+```bash
+pre-commit run --all-files
+```
+
+You can also pass additional arguments, e.g. to run a specific hook:
+
+```bash
+pre-commit run --hook-stage commit --files myfile.py
 ```
 
 ### Use as a git hook
